@@ -12,7 +12,7 @@ void main() {
 
 // Mood Model
 class MoodModel with ChangeNotifier {
-  String _currentMood = 'assets/happy.jpg';
+  String _currentMood = 'assets/happy.jpeg';
   Color _backgroundColor = Colors.yellow.shade200;
 
   final Map<String, int> _moodCounts = {
@@ -26,7 +26,7 @@ class MoodModel with ChangeNotifier {
   Map<String, int> get moodCounts => _moodCounts;
 
   void setHappy() {
-    _currentMood = 'assets/happy.jpg';
+    _currentMood = 'assets/happy.jpeg';
     _backgroundColor = Colors.yellow.shade200;
     _moodCounts['Happy'] = (_moodCounts['Happy'] ?? 0) + 1;
     notifyListeners();
@@ -40,14 +40,14 @@ class MoodModel with ChangeNotifier {
   }
 
   void setExcited() {
-    _currentMood = 'assets/excited.webp';
+    _currentMood = 'assets/excited.jpg';
     _backgroundColor = Colors.orange.shade200;
     _moodCounts['Excited'] = (_moodCounts['Excited'] ?? 0) + 1;
     notifyListeners();
   }
 
   void resetMood() {
-    _currentMood = 'assets/happy.jpg'; // default
+    _currentMood = 'assets/happy.jpeg'; // default
     _backgroundColor = Colors.yellow.shade200;
     _moodCounts.updateAll((key, value) => 0);
     notifyListeners();

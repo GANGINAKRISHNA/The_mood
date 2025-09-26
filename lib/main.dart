@@ -10,6 +10,8 @@ void main() {
   );
 }
 
+//added new
+
 // Mood Model
 class MoodModel with ChangeNotifier {
   String _currentMood = 'assets/happy.jpg';

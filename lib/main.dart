@@ -10,15 +10,12 @@ void main() {
   );
 }
 
-/* Removed incorrect ChangeNotifierProvider class. */
-
-// Mood Model - The "Brain" of our app
+// Mood Model
 class MoodModel with ChangeNotifier {
-  String _currentMood = 'assets/happy.jpeg';
-  Color _backgroundColor = Colors.yellow;
+  String _currentMood = 'assets/happy.jpg';
+  Color _backgroundColor = Colors.yellow.shade200;
 
-  // Mood counters
-  Map<String, int> _moodCounts = {
+  final Map<String, int> _moodCounts = {
     'Happy': 0,
     'Sad': 0,
     'Excited': 0,
@@ -29,36 +26,47 @@ class MoodModel with ChangeNotifier {
   Map<String, int> get moodCounts => _moodCounts;
 
   void setHappy() {
-    _currentMood = 'assets/happy.jpeg';
-    _backgroundColor = Colors.yellow;
+    _currentMood = 'assets/happy.jpg';
+    _backgroundColor = Colors.yellow.shade200;
     _moodCounts['Happy'] = (_moodCounts['Happy'] ?? 0) + 1;
     notifyListeners();
   }
 
   void setSad() {
     _currentMood = 'assets/sad.jpeg';
-    _backgroundColor = Colors.blue;
+    _backgroundColor = Colors.blue.shade200;
     _moodCounts['Sad'] = (_moodCounts['Sad'] ?? 0) + 1;
     notifyListeners();
   }
 
   void setExcited() {
-    _currentMood = 'assets/excited.jpg';
-    _backgroundColor = Colors.orange;
+    _currentMood = 'assets/excited.webp';
+    _backgroundColor = Colors.orange.shade200;
     _moodCounts['Excited'] = (_moodCounts['Excited'] ?? 0) + 1;
+    notifyListeners();
+  }
+
+  void resetMood() {
+    _currentMood = 'assets/happy.jpg'; // default
+    _backgroundColor = Colors.yellow.shade200;
+    _moodCounts.updateAll((key, value) => 0);
     notifyListeners();
   }
 }
 
-// Main App Widget
+// Main App
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Mood Toggle Challenge',
-      theme: ThemeData(primarySwatch: Colors.blue),
+      title: 'Mood Toggle App',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        fontFamily: 'Roboto',
+      ),
       home: const HomePage(),
     );
   }
@@ -74,18 +82,38 @@ class HomePage extends StatelessWidget {
       builder: (context, moodModel, child) {
         return Scaffold(
           backgroundColor: moodModel.backgroundColor,
-          appBar: AppBar(title: const Text('Mood Toggle Challenge')),
-          body: Center(
+          appBar: AppBar(
+            title: const Text('Mood Toggle App'),
+            centerTitle: true,
+            backgroundColor: Colors.deepPurple,
+          ),
+          body: Padding(
+            padding: const EdgeInsets.all(20.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                Text('How are you feeling?', style: TextStyle(fontSize: 24)),
-                SizedBox(height: 30),
-                MoodDisplay(),
-                SizedBox(height: 50),
-                MoodButtons(),
-                SizedBox(height: 40),
-                MoodCounter(),
+              children: [
+                const Text(
+                  'How are you feeling?',
+                  style: TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                // Mood image inside a card
+                Card(
+                  elevation: 8,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: MoodDisplay(),
+                  ),
+                ),
+                const SizedBox(height: 30),
+                const MoodButtons(),
+                const SizedBox(height: 40),
+                const MoodCounter(),
               ],
             ),
           ),
@@ -95,57 +123,78 @@ class HomePage extends StatelessWidget {
   }
 }
 
-// Widget that displays the current mood
+// Mood Display
 class MoodDisplay extends StatelessWidget {
-  const MoodDisplay({super.key});
-
   @override
   Widget build(BuildContext context) {
     return Consumer<MoodModel>(
       builder: (context, moodModel, child) {
         return Image.asset(
           moodModel.currentMood,
-          height: 120,
-          width: 120,
+          height: 140,
+          width: 140,
+          fit: BoxFit.contain,
         );
       },
     );
   }
 }
 
-// Widget with buttons to change the mood
+// Mood Buttons
 class MoodButtons extends StatelessWidget {
   const MoodButtons({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    return Wrap(
+      alignment: WrapAlignment.center,
+      spacing: 15,
       children: [
-        ElevatedButton(
+        ElevatedButton.icon(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.yellow[600],
+            foregroundColor: Colors.black,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12)),
+          ),
           onPressed: () {
             Provider.of<MoodModel>(context, listen: false).setHappy();
           },
-          child: const Text('Happy'),
+          icon: const Icon(Icons.sentiment_satisfied),
+          label: const Text('Happy'),
         ),
-        ElevatedButton(
+        ElevatedButton.icon(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.blue[400],
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12)),
+          ),
           onPressed: () {
             Provider.of<MoodModel>(context, listen: false).setSad();
           },
-          child: const Text('Sad'),
+          icon: const Icon(Icons.sentiment_dissatisfied),
+          label: const Text('Sad'),
         ),
-        ElevatedButton(
+        ElevatedButton.icon(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.orange[400],
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12)),
+          ),
           onPressed: () {
             Provider.of<MoodModel>(context, listen: false).setExcited();
           },
-          child: const Text('Excited'),
+          icon: const Icon(Icons.celebration),
+          label: const Text('Excited'),
         ),
       ],
     );
   }
 }
 
-// Widget to display mood counters
+// Mood Counter with Reset All button
 class MoodCounter extends StatelessWidget {
   const MoodCounter({super.key});
 
@@ -155,11 +204,55 @@ class MoodCounter extends StatelessWidget {
       builder: (context, moodModel, child) {
         return Column(
           children: [
-            Text("Mood Counters", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 10),
-            Text("😊 Happy: ${moodModel.moodCounts['Happy']}"),
-            Text("😢 Sad: ${moodModel.moodCounts['Sad']}"),
-            Text("🎉 Excited: ${moodModel.moodCounts['Excited']}"),
+            Card(
+              elevation: 6,
+              shape:
+                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    const Text(
+                      "Mood Counters",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text("😊 Happy: ${moodModel.moodCounts['Happy']}",
+                        style: const TextStyle(fontSize: 16)),
+                    Text("😢 Sad: ${moodModel.moodCounts['Sad']}",
+                        style: const TextStyle(fontSize: 16)),
+                    Text("🎉 Excited: ${moodModel.moodCounts['Excited']}",
+                        style: const TextStyle(fontSize: 16)),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.redAccent,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              onPressed: () {
+                Provider.of<MoodModel>(context, listen: false).resetMood();
+
+                // Show small confirmation
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("Moods and counters have been reset!"),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.refresh),
+              label: const Text("Reset All"), // ✅ minor change
+            ),
           ],
         );
       },
